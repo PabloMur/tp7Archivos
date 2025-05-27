@@ -27,19 +27,28 @@ int ComprobarExistenciaArchivo(char nombreArchivo[])
 Alumno CrearAlumno()
 {
     Alumno al;
+    int c;
+
     printf("Ingrese legajo: \n");
     scanf("%i", &al.legajo);
+
+    // Limpiar el buffer de entrada
+    while ((c = getchar()) != '\n' && c != EOF);
+
     printf("Ingrese nombre completo: \n");
-    fflush(stdin);
-    scanf("%s", &al.nombreYapellido);
+    fgets(al.nombreYapellido, sizeof(al.nombreYapellido), stdin);
+    // Eliminar salto de línea al final si existe
+    al.nombreYapellido[strcspn(al.nombreYapellido, "\n")] = '\0';
+
     printf("Ingrese edad: \n");
-    fflush(stdin);
     scanf("%i", &al.edad);
+
     printf("Ingrese año: \n");
-    fflush(stdin);
     scanf("%i", &al.anio);
+
     return al;
 }
+
 
 int contarAlumnosEnArchivo(char nombreArchivo[])
 {
@@ -154,8 +163,20 @@ void MostrarAlumnos(char nombreArchivo[])
         {
             MostrarDatosAlumno(alumno);
         }
-    }
     fclose(arch);
+    }
+}
+void MostrarAlumnosXLegajo(char nombreArchivo[], int legajoAlumno){
+    FILE * arch = fopen(nombreArchivo, "rb");
+    Alumno al;
+    if(arch){
+        while(fread(&al, sizeof(Alumno), 1, arch)>0){
+            if(al.legajo == legajoAlumno){
+                MostrarDatosAlumno(al);
+                }
+        }
+        fclose(arch);
+    }
 }
 
 //6.- Crear una función que permita agregar de a un elemento al final del archivo.
@@ -233,6 +254,39 @@ void AlumnosRangoEdad(char nombreArchivo[], int edadMin, int edadMax){
     fclose(archivo);
 }
 //10.- Mostrar alumno con mayor edad
+int LegajoDelMayor(char nombreArchivo[]){
+    FILE * arch = fopen(nombreArchivo, "rb");
+    int mayor = 1;
+    int legajo = 0;
+    Alumno al;
+
+    if(arch){
+        while(fread(&al, sizeof(Alumno), 1, arch) > 0){
+            if(al.edad > mayor){
+             mayor = al.edad;
+             legajo = al.legajo;
+            }
+        }
+        fclose(arch);
+    }
+    return legajo;
+}
+
+// 11.- Mostrar listado de alumnos por un anio especifico
+int CantidadAlumnosXAnio(char nombreArchivo[], int anio){
+    FILE * archivo = fopen(nombreArchivo, "rb");
+    Alumno al;
+    int cantidadAlumnos = 0;
+    if(archivo){
+        while(fread(&al, sizeof(Alumno), 1, archivo)> 0){
+            if(al.anio == anio){
+                cantidadAlumnos+=1;
+            }
+        }
+        fclose(archivo);
+    }
+    return cantidadAlumnos;
+}
 
 
 // ==============================
@@ -253,18 +307,20 @@ int main()
         system("clear");  // Linux / macOS
 #endif
 
-        printf("\n===================== MENU ================================\n");
-        printf("=   1 - Cargar enteros a un archivo.                      =\n");
-        printf("=   2 - Mostrar archivo de enteros.                       =\n");
-        printf("=   3 - Mostrar cantidad elementos archivo.               =\n");
-        printf("=   4 - Cargar Archivo con 5 alumnos.                     =\n");
-        printf("=   5 - Mostrar Archivo alumnos.                          =\n");
-        printf("=   6 - Agregar un alumno al arch de alumnos.             =\n");
-        printf("=   7 - Crear pila de legajos de alumnos mayores.         =\n");
-        printf("=   8 - Devuelve cantidad de alumn mayores de una edad.   =\n");
-        printf("=   9 - Devuelve nombres de alumno por rango de edad.     =\n");
-        printf("=   0 - Salir.                                            =\n");
-        printf("\n===========================================================\n");
+        printf("\n===================== MENU =================================\n");
+        printf("=   1  - Cargar enteros a un archivo.                       =\n");
+        printf("=   2  - Mostrar archivo de enteros.                        =\n");
+        printf("=   3  - Mostrar cantidad elementos archivo.                =\n");
+        printf("=   4  - Cargar Archivo con 5 alumnos.                      =\n");
+        printf("=   5  - Mostrar Archivo alumnos.                           =\n");
+        printf("=   6  - Agregar un alumno al arch de alumnos.              =\n");
+        printf("=   7  - Crear pila de legajos de alumnos mayores.          =\n");
+        printf("=   8  - Devuelve cantidad de alumn mayores de una edad.    =\n");
+        printf("=   9  - Devuelve nombres de alumno por rango de edad.      =\n");
+        printf("=   10 - Datos del alumno de mayor edad.                    =\n");
+        printf("=   11 - Cantidad de alumnos por anio.                      =\n");
+        printf("=   0  - Salir.                                             =\n");
+        printf("\n============================================================\n");
         printf("Seleccione una opcion: ");
         scanf("%d", &opcion);
 
@@ -385,6 +441,28 @@ int main()
             puts("Ingrese la edad máxima deseada: \n");
             scanf("%i", &edadMax);
             AlumnosRangoEdad(archivoAlumnos, edadMin, edadMax);
+            printf("Presione Enter para continuar...");
+            fflush(stdin);
+            getchar();
+            getchar();
+            break;
+        }
+        case 10:{
+            int mayor = LegajoDelMayor(archivoAlumnos);
+            MostrarAlumnosXLegajo(archivoAlumnos, mayor);
+            printf("Presione Enter para continuar...");
+            fflush(stdin);
+            getchar();
+            getchar();
+            break;
+        }
+        case 11:{
+            int anio = 1;
+            puts("Ingrese el anio del curso buscado: \n");
+            fflush(stdin);
+            scanf("%i",&anio);
+            int cantidadAlms = CantidadAlumnosXAnio(archivoAlumnos, anio);
+            printf("La cantidad de alumnos en ese anio es de: %d\n", cantidadAlms);
             printf("Presione Enter para continuar...");
             fflush(stdin);
             getchar();
