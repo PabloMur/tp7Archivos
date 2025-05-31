@@ -149,7 +149,8 @@ void CargarAlumnos(char nombreArchivo[], int cantidadAlumnos)
 }
 
 // 5. Mostrar el listado de alumnos
-void MostrarDatosAlumno(Alumno al){
+void MostrarDatosAlumno(Alumno al)
+{
     printf("Leg: %d // Nombre: %s // Edad: %d // Año: %d\n", al.legajo, al.nombreYapellido, al.edad, al.anio);
 }
 
@@ -163,17 +164,21 @@ void MostrarAlumnos(char nombreArchivo[])
         {
             MostrarDatosAlumno(alumno);
         }
-    fclose(arch);
+        fclose(arch);
     }
 }
-void MostrarAlumnosXLegajo(char nombreArchivo[], int legajoAlumno){
+void MostrarAlumnosXLegajo(char nombreArchivo[], int legajoAlumno)
+{
     FILE * arch = fopen(nombreArchivo, "rb");
     Alumno al;
-    if(arch){
-        while(fread(&al, sizeof(Alumno), 1, arch)>0){
-            if(al.legajo == legajoAlumno){
+    if(arch)
+    {
+        while(fread(&al, sizeof(Alumno), 1, arch)>0)
+        {
+            if(al.legajo == legajoAlumno)
+            {
                 MostrarDatosAlumno(al);
-                }
+            }
         }
         fclose(arch);
     }
@@ -239,32 +244,40 @@ int AlumnosMayoresAUnaEdad(char nombreArchivo[], int edad)
 //9.- Dado un archivo de alumnos, mostrar por pantalla el nombre de todos
 //    los alumnos entre un rango de edades específico (por ejemplo, entre 17 y 25 años).
 //    Dicho rango debe recibirse por parámetro. Modularizar
-void MostrarNombre(Alumno al){
+void MostrarNombre(Alumno al)
+{
     printf("Nombre: %s\n", al.nombreYapellido);
 }
 
-void AlumnosRangoEdad(char nombreArchivo[], int edadMin, int edadMax){
+void AlumnosRangoEdad(char nombreArchivo[], int edadMin, int edadMax)
+{
     FILE * archivo = fopen(nombreArchivo, "rb");
     Alumno al;
-    if(archivo){
-        while(fread(&al, sizeof(Alumno), 1, archivo)>0){
+    if(archivo)
+    {
+        while(fread(&al, sizeof(Alumno), 1, archivo)>0)
+        {
             if(al.edad > edadMin && al.edad < edadMax) MostrarNombre(al);
         }
     }
     fclose(archivo);
 }
 //10.- Mostrar alumno con mayor edad
-int LegajoDelMayor(char nombreArchivo[]){
+int LegajoDelMayor(char nombreArchivo[])
+{
     FILE * arch = fopen(nombreArchivo, "rb");
     int mayor = 1;
     int legajo = 0;
     Alumno al;
 
-    if(arch){
-        while(fread(&al, sizeof(Alumno), 1, arch) > 0){
-            if(al.edad > mayor){
-             mayor = al.edad;
-             legajo = al.legajo;
+    if(arch)
+    {
+        while(fread(&al, sizeof(Alumno), 1, arch) > 0)
+        {
+            if(al.edad > mayor)
+            {
+                mayor = al.edad;
+                legajo = al.legajo;
             }
         }
         fclose(arch);
@@ -273,19 +286,181 @@ int LegajoDelMayor(char nombreArchivo[]){
 }
 
 // 11.- Mostrar listado de alumnos por un anio especifico
-int CantidadAlumnosXAnio(char nombreArchivo[], int anio){
+int CantidadAlumnosXAnio(char nombreArchivo[], int anio)
+{
     FILE * archivo = fopen(nombreArchivo, "rb");
     Alumno al;
     int cantidadAlumnos = 0;
-    if(archivo){
-        while(fread(&al, sizeof(Alumno), 1, archivo)> 0){
-            if(al.anio == anio){
+    if(archivo)
+    {
+        while(fread(&al, sizeof(Alumno), 1, archivo)> 0)
+        {
+            if(al.anio == anio)
+            {
                 cantidadAlumnos+=1;
             }
         }
         fclose(archivo);
     }
     return cantidadAlumnos;
+}
+//12.- Crear una función que reciba como parámetro un arreglo de tipo
+//     alumno y lo copie en el archivo. Asimismo, realice otra función
+//     que pase los elementos del archivo a un arreglo de alumnos, filtrando
+//     los estudiantes de un año en particular.
+void PasarAlumnosDeArregloALArchivo(char nombreArchivo[], Alumno curso[], int validos)
+{
+    FILE * archivo = fopen(nombreArchivo, "ab");
+    if(archivo)
+    {
+        for (int i = 0; i < validos; i++)
+        {
+            fwrite(&curso[i], sizeof(Alumno), 1, archivo);
+        }
+        fclose(archivo);
+    }
+}
+
+int PasarAlumnosDeArchivoAArreglo(char nombreArchivo[], Alumno curso[], int max, int anio)
+{
+    FILE *archivo = fopen(nombreArchivo, "rb");
+    Alumno al;
+    int i = 0;
+
+    if (archivo)
+    {
+        while (fread(&al, sizeof(Alumno), 1, archivo) > 0 && i < max)
+        {
+            if (al.anio == anio)
+            {
+                curso[i] = al;
+                i++;
+            }
+        }
+        fclose(archivo);
+    }
+
+    return i; // devuelve la cantidad de alumnos válidos
+}
+
+
+void opcionPasarAlumnosPorAnio(char nombreArchivo[])
+{
+#define MAX_ALUMNOS 100
+    Alumno alumnos[MAX_ALUMNOS];
+    int anio;
+
+    printf("Ingrese el año de los alumnos a buscar: ");
+    scanf("%d", &anio);
+
+    int cantidad = PasarAlumnosDeArchivoAArreglo(nombreArchivo, alumnos, MAX_ALUMNOS, anio);
+
+    printf("Se encontraron %d alumno(s) del año %d:\n", cantidad, anio);
+    for (int i = 0; i < cantidad; i++)
+    {
+        printf("- %s %s\n", alumnos[i].nombreYapellido);
+    }
+}
+// 14. Crear una función que retorne la cantidad de registros que
+//     tiene el archivo. Usar fseek y ftell. Puede pensar la función
+//     para uso genérico, que sirva para averiguar la cantidad de registros
+//     de cualquier archivo.
+
+int RetornaCantidadRegistros(char nombreArchivo[])
+{
+    FILE *archivo = fopen(nombreArchivo, "rb");  // Abrimos en modo binario
+    if (archivo == NULL)
+    {
+        perror("No se pudo abrir el archivo");
+        return -1;
+    }
+
+    // Ir al final del archivo
+    fseek(archivo, 0, SEEK_END);
+    long tamanio_archivo = ftell(archivo);
+    fclose(archivo);
+
+    if (tamanio_archivo < 0)
+    {
+        return -1;
+    }
+
+    // Calcular la cantidad de registros
+    return tamanio_archivo / sizeof(Alumno);
+}
+
+//15.- Dado un archivo de alumnos, que tenga al menos 10 registros,
+//     hacer una función que muestre el contenido de un registro,
+//     cuyo número (entre 0 y 9) se pase por parámetro. Controlar no
+//     sobrepasar los límites del archivo.
+void MostrarInfoAlumnoXPosicion(char nombreArchivo[], int indice)
+{
+    FILE * archivo = fopen(nombreArchivo,"rb");
+    Alumno al;
+    int counter = 0;
+
+    if(archivo)
+    {
+        while(fread(&al, sizeof(Alumno), 1, archivo) > 0)
+        {
+            if(indice == counter)
+            {
+                MostrarDatosAlumno(al);
+                fclose(archivo);
+                return;
+            }
+            counter++;
+        }
+        printf("No se encontró el alumno en la posición indicada.\n");
+        fclose(archivo);
+    }
+    else
+    {
+        printf("No se pudo abrir el archivo.\n");
+    }
+}
+//16.- Realice una (o varias) funciones que permitan modificar un registro
+//     existente en el archivo de alumnos. La misma debe permitir modificar
+//     uno o todos los campos de la estructura y sobreescribir el registro
+//     existente en el archivo.
+void ModificarDatosAlumno(char nombreArchivo[]){
+    FILE * archivo = fopen(nombreArchivo, "rb");
+    MostrarAlumnos();
+}
+
+//17.- Dado un archivo de alumnos, hacer una función que invierta los elementos
+//     del mismo. No se puede usar otro archivo auxiliar ni un arreglo auxiliar.
+//     Debe trabajar sobre el archivo. Puede utilizar variables de tipo alumno auxiliares.
+
+void InvertirArchivoAlumnos(char nombreArchivo[]) {
+    FILE *archivo = fopen(nombreArchivo, "r+b");
+    if (!archivo) {
+        printf("No se pudo abrir el archivo.\n");
+        return;
+    }
+
+    int cantidad = RetornaCantidadRegistros(nombreArchivo);
+    Alumno a1, a2;
+
+    for (int i = 0; i < cantidad / 2; i++) {
+        // Leer alumno en la posición i
+        fseek(archivo, i * sizeof(Alumno), SEEK_SET);
+        fread(&a1, sizeof(Alumno), 1, archivo);
+
+        // Leer alumno en la posición (cantidad - 1 - i)
+        fseek(archivo, (cantidad - 1 - i) * sizeof(Alumno), SEEK_SET);
+        fread(&a2, sizeof(Alumno), 1, archivo);
+
+        // Escribir a2 en la posición i
+        fseek(archivo, i * sizeof(Alumno), SEEK_SET);
+        fwrite(&a2, sizeof(Alumno), 1, archivo);
+
+        // Escribir a1 en la posición (cantidad - 1 - i)
+        fseek(archivo, (cantidad - 1 - i) * sizeof(Alumno), SEEK_SET);
+        fwrite(&a1, sizeof(Alumno), 1, archivo);
+    }
+
+    fclose(archivo);
 }
 
 
@@ -319,6 +494,10 @@ int main()
         printf("=   9  - Devuelve nombres de alumno por rango de edad.      =\n");
         printf("=   10 - Datos del alumno de mayor edad.                    =\n");
         printf("=   11 - Cantidad de alumnos por anio.                      =\n");
+        printf("=   12 - Pasar alumnos de array a archivo.                  =\n");
+        printf("=   13 - Pasar alumnos de archivo a arreglo por año.        =\n");
+        printf("=   14 - Retorna cantidad de registros en archivo.          =\n");
+        printf("=   15 - Mostrar datos de alumno por indice.                =\n");
         printf("=   0  - Salir.                                             =\n");
         printf("\n============================================================\n");
         printf("Seleccione una opcion: ");
@@ -447,7 +626,8 @@ int main()
             getchar();
             break;
         }
-        case 10:{
+        case 10:
+        {
             int mayor = LegajoDelMayor(archivoAlumnos);
             MostrarAlumnosXLegajo(archivoAlumnos, mayor);
             printf("Presione Enter para continuar...");
@@ -456,13 +636,76 @@ int main()
             getchar();
             break;
         }
-        case 11:{
+        case 11:
+        {
             int anio = 1;
             puts("Ingrese el anio del curso buscado: \n");
             fflush(stdin);
             scanf("%i",&anio);
             int cantidadAlms = CantidadAlumnosXAnio(archivoAlumnos, anio);
             printf("La cantidad de alumnos en ese anio es de: %d\n", cantidadAlms);
+            printf("Presione Enter para continuar...");
+            fflush(stdin);
+            getchar();
+            getchar();
+            break;
+        }
+        case 12:
+        {
+            Alumno curso[5] =
+            {
+                {1001, "Juan Perez", 2022},
+                {1002, "Ana Garcia", 2023},
+                {1003, "Luis Martinez", 2022},
+                {1004, "Sofia López", 2024},
+                {1005, "Carlos Diaz", 2023}
+            };
+            PasarAlumnosDeArregloALArchivo(archivoAlumnos, curso, 5);
+            printf("Presione Enter para continuar...");
+            fflush(stdin);
+            getchar();
+            getchar();
+            break;
+        }
+        case 13:
+        {
+            opcionPasarAlumnosPorAnio(archivoAlumnos);
+            printf("Presione Enter para continuar...");
+            fflush(stdin);
+            getchar();
+            getchar();
+            break;
+        }
+        case 14:
+        {
+            int opcionArchivo;
+            puts("Vamos a ver la cantidad de elementos que tiene un archivo.\n");
+            puts("Hasta el momento tenemos dos archivos: .\n");
+            puts("1- Archivo Alumnos.\n");
+            puts("2- Archivo Enteros.\n");
+            puts("Ingrese la opcion que desea ver: \n");
+            scanf("%i", &opcionArchivo);
+            switch(opcionArchivo)
+            {
+            case 1:
+            {
+                int cantidadReg = RetornaCantidadRegistros(archivoAlumnos);
+                printf("La cantidad de registros en el archivo de alumnos es de: %i\n", cantidadReg);
+                break;
+            }
+            case 2:
+            {
+                int cantidadReg = RetornaCantidadRegistros(archivoEnteros);
+                printf("La cantidad de registros en el archivo de enteros es de: %i\n", cantidadReg);
+                break;
+            }
+            default:
+            {
+                printf("no se ingreso una opcion válida.\n");
+                break;
+            }
+            }
+
             printf("Presione Enter para continuar...");
             fflush(stdin);
             getchar();
