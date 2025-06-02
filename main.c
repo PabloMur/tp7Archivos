@@ -425,6 +425,10 @@ void MostrarInfoAlumnoXPosicion(char nombreArchivo[], int indice)
 //     existente en el archivo.
 void ModificarDatosAlumno(char nombreArchivo[]){
     FILE * archivo = fopen(nombreArchivo, "rb");
+    if(archivo){
+        //  ver como era la onda aca
+    }
+
     MostrarAlumnos();
 }
 
